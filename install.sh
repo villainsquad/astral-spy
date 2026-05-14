@@ -1,8 +1,12 @@
-#!/usr/bin/env bash
+#!/bin/sh
 # astral-spy installer.
 #
 # One-liner:
 #   curl -fsSL https://raw.githubusercontent.com/villainsquad/astral-spy/main/install.sh | sh
+#
+# This script is intentionally plain POSIX sh — no bashisms — because
+# `curl ... | sh` ignores the shebang and dash (Debian/Ubuntu /bin/sh)
+# rejects things like `set -o pipefail` and `[[ ... ]]`.
 #
 # What it does:
 #   1. Checks for required tools (git, go, nvidia-smi).
@@ -17,7 +21,7 @@
 #   ASTRAL_SPY_BRANCH  branch to track (default: main)
 #   ASTRAL_SPY_NO_RUN  if set, install only — do not launch the dashboard
 
-set -euo pipefail
+set -eu
 
 REPO="${ASTRAL_SPY_REPO:-https://github.com/villainsquad/astral-spy.git}"
 BRANCH="${ASTRAL_SPY_BRANCH:-main}"
@@ -39,12 +43,12 @@ require nvidia-smi "install the NVIDIA driver"
 
 mkdir -p "$(dirname "$HOME_DIR")"
 
-if [[ -d "$HOME_DIR/.git" ]]; then
+if [ -d "$HOME_DIR/.git" ]; then
     log "updating existing checkout at $HOME_DIR"
     git -C "$HOME_DIR" fetch --depth 1 origin "$BRANCH"
     git -C "$HOME_DIR" checkout -q "$BRANCH"
     git -C "$HOME_DIR" reset --hard "origin/$BRANCH"
-elif [[ -e "$HOME_DIR" ]]; then
+elif [ -e "$HOME_DIR" ]; then
     err "$HOME_DIR exists but is not a git checkout — refusing to overwrite"
     exit 1
 else
@@ -54,7 +58,7 @@ fi
 
 chmod +x "$HOME_DIR/start.sh" "$HOME_DIR/install.sh" 2>/dev/null || true
 
-if [[ -n "${ASTRAL_SPY_NO_RUN:-}" ]]; then
+if [ -n "${ASTRAL_SPY_NO_RUN:-}" ]; then
     log "installed at $HOME_DIR — run it with: $HOME_DIR/start.sh"
     exit 0
 fi
