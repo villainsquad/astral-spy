@@ -4,11 +4,23 @@ Allows users to get a live power pin breakdown for ASTRAL 5090 GPUs
 
 Credit: https://github.com/jan-provaznik/sus
 
+## Installation
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/villainsquad/astral-spy/main/install.sh | sh
+```
+
+## Usage
+
+```bash
+./start.sh
+```
+
 ## Requirements
 
 **Hardware**
 
-- ASUS ROG Astral RTX 5090 (PCI subsystem IDs `0x89e31043` / `0x8a3c1043`). Only Astral cards expose the per-pin shunt sensor over SMBus; non-Astral 5090s are not supported.
+- ASUS ROG Astral RTX 5090, if you have an Astral card and you see `No compatible ASUS ROG Astral RTX 5090 devices found.` run `nvidia-smi --query-gpu=name,pci.sub_device_id --format=csv` and paste the output into a pull request.
 
 **Runtime**
 
@@ -22,14 +34,4 @@ Credit: https://github.com/jan-provaznik/sus
 - `git` — `install.sh` clones the repo into `$HOME/.local/share/astral-spy`.
 
 
-## Installation
 
-```bash
-curl -fsSL https://raw.githubusercontent.com/villainsquad/astral-spy/main/install.sh | sh
-```
-
-## Usage
-
-```bash
-./start.sh
-```
