@@ -52,15 +52,15 @@ ensure_nvidia() {
 }
 
 ensure_built() {
-    if [[ -x "$BIN" ]]; then
-        return 0
-    fi
     if ! command -v go >/dev/null 2>&1; then
         err "go toolchain not found — install Go to build astral-spy"
         exit 1
     fi
-    log "building astral-spy"
-    (cd "$SCRIPT_DIR" && make)
+    # Always invoke make — it's a no-op when the binary is up to date,
+    # and rebuilds when any source file (e.g. the device-ID list in
+    # internal/sus/sus.go) has changed since the last build.
+    log "checking build"
+    (cd "$SCRIPT_DIR" && make --quiet)
 }
 
 ensure_i2c
