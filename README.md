@@ -12,9 +12,29 @@ curl -fsSL https://raw.githubusercontent.com/villainsquad/astral-spy/main/instal
 
 ## Usage
 
+Interactive terminal dashboard:
+
 ```bash
 ~/.local/share/astral-spy/start.sh
 ```
+
+Run as a Prometheus exporter (for fleet monitoring) instead of the TUI:
+
+```bash
+~/.local/share/astral-spy/start.sh --exporter
+# now exposing /metrics on :9835
+```
+
+To keep the exporter running across reboots, install the bundled systemd unit:
+
+```bash
+sudo cp ~/.local/share/astral-spy/bin/astral-spy /usr/local/bin/astral-spy
+sudo cp ~/.local/share/astral-spy/contrib/systemd/astral-spy-exporter.service /etc/systemd/system/
+sudo systemctl daemon-reload
+sudo systemctl enable --now astral-spy-exporter
+```
+
+Verify: `curl -s localhost:9835/metrics | head`.
 
 ## Requirements
 
