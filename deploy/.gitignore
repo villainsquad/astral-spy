@@ -1,3 +1,0 @@
-# Local fleet topology — copied from example-scrape.yml and
-# customised with real IPs. Never commit; never push.
-scrape.yml
