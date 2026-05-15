@@ -13,7 +13,7 @@ curl -fsSL https://raw.githubusercontent.com/villainsquad/astral-spy/main/instal
 ## Usage
 
 ```bash
-./start.sh
+~/.local/share/astral-spy/start.sh
 ```
 
 ## Requirements
