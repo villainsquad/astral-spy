@@ -16,7 +16,7 @@ import "github.com/khirono/go-i2c/smbus"
 //
 
 var nvidiaCompatibleDevice = []uint32{0x2b8510de}
-var astralCompatibleDevice = []uint32{0x89e31043, 0x8a3c1043}
+var astralCompatibleDevice = []uint32{0x89e31043, 0x8a3c1043, 0x8a2e1043}
 
 // Exported types and methods
 //
