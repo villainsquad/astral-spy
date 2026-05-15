@@ -1,0 +1,23 @@
+[Unit]
+Description=astral-spy Prometheus exporter
+Documentation=https://github.com/villainsquad/astral-spy
+After=network-online.target nvidia-persistenced.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+# Needs root for /dev/i2c-* access (same reason start.sh re-execs under sudo).
+User=root
+ExecStartPre=/sbin/modprobe i2c-dev
+ExecStart=/usr/local/bin/astral-spy --exporter --exporter-addr=:9835
+Restart=on-failure
+RestartSec=5s
+
+# Hardening — relax these if your distro complains.
+NoNewPrivileges=true
+ProtectHome=true
+ProtectSystem=strict
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

@@ -2,9 +2,11 @@
 
 package sus
 
-import "fmt"
+import (
+	"fmt"
 
-import "github.com/NVIDIA/go-nvml/pkg/nvml"
+	"github.com/NVIDIA/go-nvml/pkg/nvml"
+)
 
 type AstralDeviceMetrics struct {
 	Name             string

@@ -3,14 +3,16 @@
 
 package sus
 
-import "os"
-import "fmt"
-import "slices"
-import "strings"
-import "encoding/binary"
+import (
+	"encoding/binary"
+	"fmt"
+	"os"
+	"slices"
+	"strings"
 
-import "github.com/NVIDIA/go-nvml/pkg/nvml"
-import "github.com/khirono/go-i2c/smbus"
+	"github.com/NVIDIA/go-nvml/pkg/nvml"
+	"github.com/khirono/go-i2c/smbus"
+)
 
 // Constants
 //
@@ -195,4 +197,3 @@ func findAstralDeviceSensorNumber(info nvml.PciInfo) (int, error) {
 
 	return final, nil
 }
-

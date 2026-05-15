@@ -1,0 +1,54 @@
+# VictoriaMetrics scrape config — EXAMPLE / TEMPLATE.
+#
+# THIS FILE IS COMMITTED TO THE REPO AS A TEMPLATE.
+# Copy it to `scrape.yml` (which is git-ignored) and replace the
+# example IPs and hostnames with your own fleet:
+#
+#     cp deploy/example-scrape.yml deploy/scrape.yml
+#     $EDITOR deploy/scrape.yml
+#
+# Each target is the LAN IP of a render box, paired with a `hostname`
+# label. A relabel rule promotes that label into `instance` so Grafana
+# panels read "renderN" rather than the bare IP.
+#
+# astral-spy --exporter listens on :9835. node_exporter listens on :9100
+# (Debian/Ubuntu: `apt install prometheus-node-exporter`). Install
+# node_exporter on each render host if you want CPU temp/power/RAM/disk
+# panels alongside the GPU pin data.
+#
+# Behind NAT or across networks? Easiest fix is to put every box on a
+# Tailscale tailnet and reference each by its 100.x.x.x address here.
+# Everything else in this file stays the same.
+
+global:
+  scrape_interval: 15s
+  scrape_timeout: 10s
+  external_labels:
+    monitor: astral-spy
+
+scrape_configs:
+  - job_name: astral-spy
+    static_configs:
+      # ─── Replace these with your own render hosts ──────────────────
+      - { targets: ['192.168.1.10:9835'], labels: { hostname: render1 } }
+      - { targets: ['192.168.1.11:9835'], labels: { hostname: render2 } }
+      - { targets: ['192.168.1.12:9835'], labels: { hostname: render3 } }
+      # Add one line per box. The `hostname` label is what shows up in
+      # Grafana panels — make it human-readable.
+    relabel_configs:
+      - source_labels: [hostname]
+        target_label: instance
+      - target_label: role
+        replacement: render
+
+  - job_name: node
+    static_configs:
+      # ─── Same hosts, port 9100 (node_exporter) ─────────────────────
+      - { targets: ['192.168.1.10:9100'], labels: { hostname: render1 } }
+      - { targets: ['192.168.1.11:9100'], labels: { hostname: render2 } }
+      - { targets: ['192.168.1.12:9100'], labels: { hostname: render3 } }
+    relabel_configs:
+      - source_labels: [hostname]
+        target_label: instance
+      - target_label: role
+        replacement: render

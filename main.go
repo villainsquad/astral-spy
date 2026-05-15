@@ -3,17 +3,20 @@
 
 package main
 
-import "flag"
-import "fmt"
-import "io"
-import "os"
-import "os/signal"
-import "strings"
-import "syscall"
-import "time"
+import (
+	"flag"
+	"fmt"
+	"io"
+	"os"
+	"os/signal"
+	"strings"
+	"syscall"
+	"time"
 
-import "github.com/NVIDIA/go-nvml/pkg/nvml"
-import "github.com/villainsquad/astral-spy/internal/sus"
+	"github.com/NVIDIA/go-nvml/pkg/nvml"
+	"github.com/villainsquad/astral-spy/internal/exporter"
+	"github.com/villainsquad/astral-spy/internal/sus"
+)
 
 // ANSI control sequences (vars, not consts, so --no-color can clear them).
 var (
@@ -35,12 +38,12 @@ var (
 // rated → ~114 W/pin). At rated 600 W evenly balanced, ideal per-pin draw
 // is 100 W, which sets the warn floor.
 //
-//   * pinWarnW / pinCritW: per-pin power draw thresholds. Crit matches
+//   - pinWarnW / pinCritW: per-pin power draw thresholds. Crit matches
 //     susd's default emergency-throttle line so dashboard red = daemon act.
-//   * balanceWarnPct / balanceCritPct: lower/upper pin draw ratio.
+//   - balanceWarnPct / balanceCritPct: lower/upper pin draw ratio.
 //     Healthy 5090s measure ~0.93 under load, so warn=0.85 leaves
 //     headroom while crit=0.70 stays clear for real faults.
-//   * tempWarnC / tempCritC: Blackwell throttles ~88 °C.
+//   - tempWarnC / tempCritC: Blackwell throttles ~88 °C.
 var (
 	pinWarnW       = 100.0
 	pinCritW       = 105.0
@@ -57,6 +60,8 @@ func main() {
 	interval := flag.Duration("t", time.Second, "Refresh interval")
 	noColor := flag.Bool("no-color", false, "Disable ANSI colors")
 	once := flag.Bool("once", false, "Print one frame and exit (no clear screen)")
+	exporterMode := flag.Bool("exporter", false, "Run as a Prometheus exporter on --exporter-addr instead of the TUI")
+	exporterAddr := flag.String("exporter-addr", ":9835", "Listen address for --exporter mode")
 	flag.Float64Var(&pinWarnW, "pin-warn", pinWarnW, "Per-pin warning threshold (W)")
 	flag.Float64Var(&pinCritW, "pin-crit", pinCritW, "Per-pin critical threshold (W)")
 	flag.Float64Var(&balanceFloorW, "bal-floor", balanceFloorW,
@@ -82,6 +87,15 @@ func main() {
 	if len(devices) < 1 {
 		fmt.Fprintln(os.Stderr, "No compatible ASUS ROG Astral RTX 5090 devices found.")
 		os.Exit(1)
+	}
+
+	if *exporterMode {
+		fmt.Fprintf(os.Stderr, "astral-spy exporter listening on %s (/metrics)\n", *exporterAddr)
+		if err := exporter.New(*exporterAddr, devices).ListenAndServe(); err != nil {
+			fmt.Fprintln(os.Stderr, err)
+			os.Exit(1)
+		}
+		return
 	}
 
 	out := os.Stdout
